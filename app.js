@@ -24,29 +24,30 @@ app.get('/wallet', function (req, res) {
 });
 
 app.post('/register', function (req, res) {
-    console.log(req.body);
-    bucket.manager().createPrimaryIndex(function() {
-        bucket.upsert('user:' + req.body.cid, {
-                //todo: md5 the pass
-                'email': req.body.user, 'password': req.body.pass
-            },
-            function (err, result) {
-                console.log(result);
-                /*bucket.get('user:king_arthur', function (err, result) {
-                    console.log('Got result: %j', result.value);
-                    bucket.query(
-                        N1qlQuery.fromString('SELECT * FROM default WHERE $1 in interests LIMIT 1'),
-                        ['African Swallows'],
-                        function (err, rows) {
-                            console.log("Got rows: %j", rows);
-                        });
-                });*/
-            });
-    });
+    bucket.upsert('user:' + req.body.cid, {
+            'email': req.body.user, 'password': req.body.pass
+        },
+        function (err, result) {
+            res.setHeader('Content-Type', 'application/json');
+            var status = -1;
+            if (err === null) status = 0;
+            return res.send(JSON.stringify({"status": status, "result": result}));
+        }
+    );
 });
 
-app.get('/login', function (req, res) {
-    res.send('Hello World!')
+app.post('/login', function (req, res) {
+    bucket.get('user:' + req.body.cid, function (err, result) {
+        console.log('Got result: %j', result.value);
+
+        var rex = {status: -1, result: "failed"};
+
+        if (result.value.email === req.body.user && result.value.password === req.body.pass) {
+            rex = {status: 0, result: "success"};
+        }
+        res.setHeader('Content-Type', 'application/json');
+        return res.send(JSON.stringify(rex));
+    });
 });
 
 app.get('/logout', function (req, res) {
