@@ -15,7 +15,7 @@ var bucket = cluster.openBucket('default');
 var N1qlQuery = couchbase.N1qlQuery;
 
 var bitcoin_rpc = require('node-bitcoin-rpc');
-bitcoin_rpc.init('54.235.237.34', 49568, 'coind', 'dnioc');
+bitcoin_rpc.init('54.235.237.34', 49568, 'coind', '*****');
 
 app.get('/', function (req, res) {
     res.send('Hello World!')
